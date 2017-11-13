@@ -1,47 +1,20 @@
 from customer import Customer
-
-def scanPrices(price_list):
-    total_price = 0.0
-    item = input('Enter 4-digit item code [or 9999 to stop]: ')
-    while item != '9999':
-        if item in price_list:
-            price = price_list[item]
-            print('Item found. Price:',price)
-            total_price = total_price + price
-        else:
-            print('Item not found')
-        item = input('Enter 4-digit item code [or 9999 to stop]: ')
-    print('Total price:',total_price)
-    print()
-    return total_price
-
-def scanCoupons(coupon_list):
-    total_coupons = 0.0
-    item = input('Enter 4-digit coupon code [or 9999 to stop]: ')
-    while item != '9999':
-        if item in coupon_list:
-            coupon = coupon_list[item]
-            print('Coupon found. Value:',coupon)
-            total_coupons = total_coupons + coupon
-        else:
-            print('Coupon not found')
-        item = input('Enter 4-digit coupon code [or 9999 to stop]: ')
-    print('Total coupon value:',total_coupons)
-    print()
-    return total_coupons
+from priceItem import PriceItem
 
 def readPriceList():
-    price_list = dict()
+    price_list = []
     price_file = open('price_list.txt','r')
     for line in price_file:
         line = line.strip()
-        price = line.split( )
-        price_list[price[0]] = float(price[1])
+        if line.__len__() > 0 :
+          price = line.split(",")
+          price_list.append(PriceItem(int(price[0]),price[1],float(price[2]),float(price[3])))
     price_file.close()
     print('Price list:')
-    price_list_touples = price_list.items()
-    for tup in price_list_touples:
-        print(tup)
+    print('Code\tName\t\tKKal\t\tPrice')
+    for priceItemp in price_list:
+        print('{:d}\t{}\t\t{:>6.2f}\t{:>8.2f}'.format(priceItemp.getCode(), priceItemp.getName(),
+                                                      priceItemp.getKkal(), priceItemp.getPrice()))
     print()
     return price_list
 
@@ -59,6 +32,44 @@ def readCouponList():
         print(tup)
     print()
     return coupon_list
+
+def scanPrices(price_list):
+    total_price = 0.0
+    total_kkal = 0.0
+    item = int(input('Enter 4-digit item code [or 9999 to stop]: '))
+    while item != 9999:
+        found=False
+        for priceItemp in price_list:
+            if item == priceItemp.getCode():
+                price = priceItemp.getPrice()
+                kkal=priceItemp.getKkal()
+                print('Item found.')
+                total_price = total_price + priceItemp.getPrice()
+                total_kkal = total_kkal + priceItemp.getKkal()
+                found=True
+                break
+        if found == False:
+            print('Item not found')
+        item = int(input('Enter 4-digit item code [or 9999 to stop]: '))
+    print('Total Kkal: {:>6.2f}'.format(total_kkal))
+    print('Total price: {:>8.2f}'.format(total_price))
+    print()
+    return total_price,total_kkal
+
+def scanCoupons(coupon_list):
+    total_coupons = 0.0
+    item = input('Enter 4-digit coupon code [or 9999 to stop]: ')
+    while item != '9999':
+        if item in coupon_list:
+            coupon = coupon_list[item]
+            print('Coupon found. Value:',coupon)
+            total_coupons = total_coupons + coupon
+        else:
+            print('Coupon not found')
+        item = input('Enter 4-digit coupon code [or 9999 to stop]: ')
+    print('Total coupon value:',total_coupons)
+    print()
+    return total_coupons
 
 def makePayment(customer,total_amount):
     successful_payment = False
@@ -87,19 +98,21 @@ def makePayment(customer,total_amount):
 
 def main():
 
-    print('Welcome to Wake-Mart. Please register.')
-    name = input('Enter your name: ')
-    customer1=Customer(name)
-    customer1.inputCardsInfo()
-    print('Registration completed')
-    print()
+    print('Welcome to McDonald. Please register.')
+#    name = input('Enter your name: ')
+#    customer1=Customer(name)
+#    customer1.inputCardsInfo()
+#    print('Registration completed')
+#    print()
     price_list=readPriceList()
-    total_price = scanPrices(price_list)
+    total_price,total_kkal = scanPrices(price_list)
+    """
     coupon_list = readCouponList()
     total_coupons = scanCoupons(coupon_list)
     total_amount = total_price - total_coupons
     print('Please pay this amount:',total_amount)
     print()
     makePayment(customer1,total_amount)
+    """
 
 main()
